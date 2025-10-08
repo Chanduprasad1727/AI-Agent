@@ -440,7 +440,7 @@
             } catch (e) {
                 // If the error is about the missing key, update the UI with a more explicit message.
                 if (e.message.indexOf("API Key is missing") !== -1 || e.message.indexOf("YOUR_GEMINI_API_KEY_HERE") !== -1) {
-                    error = "CRITICAL: Gemini API Key is missing. Please edit the code and insert your key to proceed.";
+                    error = "CRITICAL: API Key is missing. Please edit the code and insert your key to proceed.";
                 } else if (e.message.indexOf("Status: 400") !== -1 && e.message.indexOf("API key not valid") !== -1) {
                     error = "ERROR 400: Your API Key is likely invalid. Please check your key.";
                 } else {
