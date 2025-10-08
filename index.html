@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Project Breakdown</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        /* Apply Inter font and basic styles */
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Style for the code output areas */
+        .prose pre {
+            background-color: #f9fafb !important;
+            border: 1px solid #e5e7eb !important;
+            color: #1f2937 !important;
+            padding: 1rem !important;
+            border-radius: 0.5rem !important;
+            overflow-x: auto;
+            white-space: pre-wrap; /* Ensure text wraps */
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        /* Spinning animation for the loader */
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-gray-900 flex items-center justify-center">
+                <!-- Zap Icon Placeholder -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-600 mr-3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                AI Project Breakdown
+            </h1>
+            <p class="mt-2 text-lg text-gray-600">
+                Convert high-level project briefs into actionable technical plans using specialized AI agents.
+            </p>
+        </header>
+
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8 border border-indigo-200">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <!-- LayoutGrid Icon Placeholder -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-indigo-500 mr-2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Project Brief Input
+            </h2>
+            <textarea
+                id="brief-input"
+                class="w-full p-4 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out resize-y min-h-32 text-gray-700"
+                placeholder="e.g., Build a collaborative project management tool that tracks tasks, assigns owners, and notifies users of deadlines."
+            ></textarea>
+            <button
+                id="generate-button"
+                class="mt-4 w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 ease-in-out disabled:bg-indigo-300 flex items-center justify-center"
+            >
+                <!-- Button Content will be managed by JS -->
+            </button>
+        </div>
+
+        <!-- Error Message Container -->
+        <div id="error-container" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6" role="alert">
+            <strong class="font-bold">Error:</strong>
+            <span id="error-message" class="block sm:inline ml-2"></span>
+        </div>
+
+        <!-- Coordinator Agent Output (Task Breakdown) -->
+        <div id="coordinator-output" class="mb-8 hidden">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <!-- LayoutGrid Icon Placeholder -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-indigo-500 mr-2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Coordinator Agent: Task Breakdown
+            </h2>
+            <div id="task-table-container">
+                <!-- Task table will be rendered here by JS -->
+            </div>
+        </div>
+
+        <!-- Sub-Agent Deliverables Container -->
+        <div id="sub-agent-deliverables" class="hidden">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 mt-10">
+                Sub-Agent Deliverables
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto min-h-96">
+                <!-- Backend Panel -->
+                <div id="backend-panel" class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-full flex flex-col">
+                    <h2 class="text-xl font-bold mb-3 flex items-center text-gray-800">
+                        <!-- Database Icon Placeholder -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-green-600"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 12a9 3 0 0 0 18 0"/><path d="M3 19a9 3 0 0 0 18 0"/><path d="M12 5v14"/></svg>
+                        <span class="ml-2">Backend Agent Plan</span>
+                    </h2>
+                    <div class="flex-grow overflow-y-auto">
+                        <div class="prose prose-sm max-w-none text-gray-700" id="backend-output">
+                            <!-- Content will be rendered here by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frontend Panel -->
+                <div id="frontend-panel" class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-full flex flex-col">
+                    <h2 class="text-xl font-bold mb-3 flex items-center text-gray-800">
+                        <!-- Code Icon Placeholder -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-600"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        <span class="ml-2">Frontend Agent Plan</span>
+                    </h2>
+                    <div class="flex-grow overflow-y-auto">
+                        <div class="prose prose-sm max-w-none text-gray-700" id="frontend-output">
+                            <!-- Content will be rendered here by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Global State Variables ---
+        let brief = "Build a social media dashboard that displays real-time engagement data and allows users to schedule posts to multiple platforms.";
+        let loading = false;
+        let tasks = [];
+        let backendOutput = '';
+        let frontendOutput = '';
+        let error = null;
+
+        // --- Global Constants (MANDATORY for Firebase/API calls) ---
+        /**
+         * IMPORTANT: To run this application locally, you MUST replace the placeholder
+         * below with your actual Gemini API Key, obtained from Google AI Studio.
+         */
+        const apiKey = "YOUR_GEMINI_API_KEY_HERE"; // <-- REPLACE THIS PLACEHOLDER
+        const MODEL_NAME = "gemini-2.5-flash-preview-05-20";
+
+        // --- Agent Orchestration Schemas ---
+        const coordinatorSchema = {
+            type: "ARRAY",
+            items: {
+                type: "OBJECT",
+                properties: {
+                    "feature": { "type": "STRING", "description": "The concise name of the technical task/feature." },
+                    "assignedTo": { "type": "STRING", "description": "The agent responsible: 'Frontend' or 'Backend'. Must be one of 'Frontend' or 'Backend'." }
+                },
+                propertyOrdering: ["feature", "assignedTo"]
+            }
+        };
+
+        /**
+         * Utility function to handle API calls with exponential backoff and retries.
+         */
+        const retryFetch = async (url, payload, retries = 3) => {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    // Check if the API key is set before attempting the fetch
+                    if (apiKey === "YOUR_GEMINI_API_KEY_HERE" || !apiKey) {
+                        throw new Error("API Key is missing. Please edit the code and insert your Gemini API Key to run this locally.");
+                    }
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        // Attempt to parse the error message from the response body
+                        let errorDetail = response.statusText;
+                        try {
+                            const errorJson = await response.json();
+                            errorDetail = errorJson.error?.message || response.statusText;
+                        } catch (e) {
+                            // Ignore JSON parsing error if response isn't JSON
+                        }
+                        
+                        throw new Error(`HTTP error! Status: ${response.status}. Detail: ${errorDetail}`);
+                    }
+
+                    return await response.json();
+                } catch (err) {
+                    console.error(`Attempt ${i + 1} failed:`, err.message);
+                    if (i < retries - 1 && err.message.indexOf("API Key is missing") === -1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        // Re-throw if it's the last attempt or the key is missing
+                        throw err; 
+                    }
+                }
+            }
+        };
+
+        /**
+         * Wrapper to call the Gemini API for content generation.
+         */
+        const callGemini = async (systemInstruction, userQuery, responseSchema = null) => {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+
+            const generationConfig = responseSchema ? {
+                responseMimeType: "application/json",
+                responseSchema: responseSchema
+            } : {};
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemInstruction }]
+                },
+                generationConfig: generationConfig
+            };
+
+            const result = await retryFetch(apiUrl, payload);
+            const candidate = result.candidates?.[0];
+
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                const text = candidate.content.parts[0].text;
+                
+                if (responseSchema) {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error("Failed to parse structured JSON response:", text);
+                        throw new Error("AI agent returned invalid JSON structure.");
+                    }
+                }
+                return text;
+            }
+
+            throw new Error("AI Agent failed to return valid content.");
+        };
+
+        /**
+         * Renders the dynamic content based on the current global state.
+         */
+        const updateUI = () => {
+            const briefInput = document.getElementById('brief-input');
+            const generateButton = document.getElementById('generate-button');
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
+            const coordinatorOutput = document.getElementById('coordinator-output');
+            const subAgentDeliverables = document.getElementById('sub-agent-deliverables');
+            const backendOutputEl = document.getElementById('backend-output');
+            const frontendOutputEl = document.getElementById('frontend-output');
+
+            // 1. Update Input and Button State
+            brief = briefInput.value;
+            briefInput.disabled = loading;
+            generateButton.disabled = loading || !brief.trim();
+
+            if (loading) {
+                generateButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                    LOADING...
+                `;
+            } else {
+                generateButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Start Breakdown
+                `;
+            }
+
+            // 2. Error Display
+            if (error) {
+                errorContainer.classList.remove('hidden');
+                errorMessage.textContent = error;
+            } else {
+                errorContainer.classList.add('hidden');
+                errorMessage.textContent = '';
+            }
+
+            // 3. Coordinator Task Table Display
+            if (tasks.length > 0) {
+                coordinatorOutput.classList.remove('hidden');
+                renderTaskTable(tasks);
+            } else if (loading) {
+                coordinatorOutput.classList.remove('hidden');
+                document.getElementById('task-table-container').innerHTML = `<p class="text-gray-500 italic">Coordinator is generating tasks...</p>`;
+            } else {
+                coordinatorOutput.classList.add('hidden');
+            }
+
+            // 4. Sub-Agent Deliverables Display
+            const hasOutput = backendOutput || frontendOutput;
+            if (!loading && hasOutput) {
+                subAgentDeliverables.classList.remove('hidden');
+            } else {
+                subAgentDeliverables.classList.add('hidden');
+            }
+
+            const formatContent = (content) => content 
+                ? `<pre class="whitespace-pre-wrap p-4 bg-gray-50 rounded-lg text-sm border border-gray-200">${content}</pre>`
+                : `<p class="text-gray-400 italic">Awaiting agent output...</p>`;
+
+            backendOutputEl.innerHTML = formatContent(backendOutput);
+            frontendOutputEl.innerHTML = formatContent(frontendOutput);
+        };
+        
+        /**
+         * Generates and inserts the HTML for the Task Breakdown table.
+         * @param {Array<Object>} taskList 
+         */
+        const renderTaskTable = (taskList) => {
+            const container = document.getElementById('task-table-container');
+            
+            let tableHtml = `
+                <div class="overflow-x-auto shadow-md rounded-lg">
+                    <table class="min-w-full bg-white text-sm">
+                        <thead class="bg-indigo-50 border-b border-indigo-200">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">#</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Feature</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Assigned To</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            taskList.forEach(task => {
+                const badgeClass = task.assignedTo === 'Backend' 
+                    ? 'bg-green-100 text-green-800' 
+                    : task.assignedTo === 'Frontend' 
+                    ? 'bg-blue-100 text-blue-800' 
+                    : 'bg-red-100 text-red-800';
+                
+                tableHtml += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3 font-mono text-gray-600">${task.id}</td>
+                        <td class="px-4 py-3 text-gray-800">${task.feature}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full ${badgeClass}">
+                                ${task.assignedTo}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = tableHtml;
+        };
+
+
+        /**
+         * Main function to handle the project breakdown process.
+         */
+        const handleGenerateTasks = async () => {
+            loading = true;
+            error = null;
+            tasks = [];
+            backendOutput = '';
+            frontendOutput = '';
+            
+            // Get current brief value
+            const currentBrief = document.getElementById('brief-input').value.trim();
+            if (!currentBrief) {
+                error = "Please enter a project brief.";
+                loading = false;
+                updateUI();
+                return;
+            }
+            brief = currentBrief;
+
+            updateUI(); // Set loading state
+
+            try {
+                // --- STEP 1: COORDINATOR AGENT (Breakdown & Assignment) ---
+                const coordinatorPrompt = `Analyze the following high-level project brief and break it down into a comprehensive list of technical features. Assign each feature clearly to either 'Frontend' or 'Backend' agent. Project Brief: "${brief}"`;
+                
+                const coordinatorSystem = "You are an AI Project Manager (Coordinator Agent). Your task is to break down the user's project brief into concrete, technical tasks and assign them to the appropriate agent. Provide the output strictly as a JSON array matching the provided schema.";
+                
+                console.log("Coordinator: Breaking down brief...");
+                const taskList = await callGemini(coordinatorSystem, coordinatorPrompt, coordinatorSchema);
+                
+                if (!Array.isArray(taskList) || taskList.length === 0) {
+                    throw new Error("Coordinator agent failed to generate a valid list of tasks.");
+                }
+                
+                // Clean up and assign IDs
+                tasks = taskList.map((t, index) => ({ 
+                    id: index + 1, 
+                    feature: t.feature || 'Unknown Task', 
+                    assignedTo: t.assignedTo || 'Unassigned'
+                }));
+                updateUI(); // Show the task list
+
+                // Separate tasks for sub-agents
+                const backendTasks = tasks.filter(t => t.assignedTo === 'Backend').map(t => `- ${t.feature}`).join('\n');
+                const frontendTasks = tasks.filter(t => t.assignedTo === 'Frontend').map(t => `- ${t.feature}`).join('\n');
+
+                const agentPromises = [];
+
+                // --- STEP 2a: BACKEND AGENT (APIs, Schema, Business Logic) ---
+                if (backendTasks.length > 0) {
+                    const backendSystem = "You are the Backend Agent. Given a list of required features, generate a single, consolidated response in Markdown. This response MUST include: 1. A detailed PostgreSQL/MongoDB Database Schema plan (using an appropriate document/table structure). 2. A list of necessary REST API Endpoints (Method, Path, and brief description). 3. A summary of the core Business Logic workflows (e.g., authentication, data validation, scheduling).";
+                    const backendPrompt = `Generate the full backend plan based on the following required features:\n${backendTasks}`;
+                    
+                    agentPromises.push(
+                        callGemini(backendSystem, backendPrompt)
+                            .then(result => backendOutput = result)
+                            .catch(err => {
+                                backendOutput = `Error generating backend plan: ${err.message}`;
+                                console.error("Backend Agent Error:", err);
+                            })
+                    );
+                } else {
+                    backendOutput = "No backend tasks were assigned by the Coordinator.";
+                }
+
+                // --- STEP 2b: FRONTEND AGENT (UI Components & Interaction) ---
+                if (frontendTasks.length > 0) {
+                    const frontendSystem = "You are the Frontend Agent. Given a list of required features, generate a single, consolidated response in Markdown. This response MUST include: 1. A list of necessary React Components (with component names and a description). 2. A plan for the main Page/Layout structure (including responsiveness). 3. A summary of key user interactions and state management required.";
+                    const frontendPrompt = `Generate the full frontend plan based on the following required features:\n${frontendTasks}`;
+
+                    agentPromises.push(
+                        callGemini(frontendSystem, frontendPrompt)
+                            .then(result => frontendOutput = result)
+                            .catch(err => {
+                                frontendOutput = `Error generating frontend plan: ${err.message}`;
+                                console.error("Frontend Agent Error:", err);
+                            })
+                    );
+                } else {
+                    frontendOutput = "No frontend tasks were assigned by the Coordinator.";
+                }
+
+                // Wait for both sub-agents to complete
+                await Promise.all(agentPromises);
+
+            } catch (e) {
+                // If the error is about the missing key, update the UI with a more explicit message.
+                if (e.message.indexOf("API Key is missing") !== -1 || e.message.indexOf("YOUR_GEMINI_API_KEY_HERE") !== -1) {
+                    error = "CRITICAL: Gemini API Key is missing. Please edit the code and insert your key to proceed.";
+                } else if (e.message.indexOf("Status: 400") !== -1 && e.message.indexOf("API key not valid") !== -1) {
+                    error = "ERROR 400: Your API Key is likely invalid. Please check your key.";
+                } else {
+                    // General error
+                    error = e.message.replace("Maximum retry attempts reached. ", "");
+                }
+            } finally {
+                loading = false;
+                updateUI();
+            }
+        };
+
+        // --- Initialization ---
+        window.onload = () => {
+            const briefInput = document.getElementById('brief-input');
+            const generateButton = document.getElementById('generate-button');
+            
+            // Set initial state from global variable
+            briefInput.value = brief;
+            
+            // Attach event listeners
+            generateButton.addEventListener('click', handleGenerateTasks);
+            
+            // Initial UI rendering
+            updateUI();
+        };
+
+    </script>
+</body>
+</html>
